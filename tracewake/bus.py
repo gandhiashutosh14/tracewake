@@ -32,6 +32,18 @@ class Bus(Protocol):
     def close(self) -> None: ...
 
 
+def _topic_name(desc: Dict) -> Optional[str]:
+    """Topic name from a describe_topics entry; kafka-python 2.x uses 'topic', 3.x uses 'name'."""
+    return desc.get("topic") if "topic" in desc else desc.get("name")
+
+
+def _partition_view(p: Dict) -> Dict[str, Optional[int]]:
+    """Normalise a partition entry to {'partition', 'leader'} across kafka-python versions."""
+    index = p["partition"] if "partition" in p else p.get("partition_index")
+    leader = p["leader"] if "leader" in p else p.get("leader_id")
+    return {"partition": index, "leader": leader}
+
+
 def partition_for(key: Optional[bytes], partitions: int, fallback: int = 0) -> int:
     if key is None:
         return fallback % partitions
@@ -131,8 +143,8 @@ class KafkaBus:
                 desc, last = [], f"describe failed: {e}"
             finally:
                 admin.close()
-            parts = [p for t in desc if t.get("topic") == topic for p in t.get("partitions", [])]
-            leaderless = [p["partition"] for p in parts if p.get("leader", -1) in (-1, None)]
+            parts = [_partition_view(p) for t in desc if _topic_name(t) == topic for p in (t.get("partitions") or [])]
+            leaderless = [p["partition"] for p in parts if p["leader"] in (-1, None)]
             if parts and not leaderless and (wanted == 0 or len(parts) >= wanted):
                 consumer = self._consumer()
                 try:

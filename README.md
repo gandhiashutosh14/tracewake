@@ -55,7 +55,7 @@ made by an autonomous agent.
 | What problem does this address? | Agent decisions are kept as disposable logs. They should be durable, ordered, reconstructible evidence that can be re-examined when policies change. |
 | Who has this problem? | Anyone deploying agents that act on real systems: platform teams, risk and compliance functions, and the engineers who answer "why did the agent do that?" |
 | What does this repository do? | Publishes a governed agent's decision trace to a Kafka-compatible log as versioned envelopes, rebuilds the ledger from the log alone, and replays recorded tool decisions under a changed policy. A proof pack verifies all of it. |
-| What has been shown so far? | On four recorded runs (40 events): the ledger rebuilt from the log equals the source, survives being destroyed and rebuilt, and ignores duplicate delivery; 7 decisions were replayed under a changed policy with 0 mismatches against the record, 2 flipped and 0 needing evidence; 8 of 8 checks pass on the in-memory log ([report](reports/demo-memory.md)) and, identically, against a real AutoMQ 1.7.4 + MinIO cluster in CI ([report](reports/replayproof-automq-2026-09-19.md)). 62 unit tests. |
+| What has been shown so far? | On four recorded runs (40 events): the ledger rebuilt from the log equals the source, survives being destroyed and rebuilt, and ignores duplicate delivery; 7 decisions were replayed under a changed policy with 0 mismatches against the record, 2 flipped and 0 needing evidence; 8 of 8 checks pass on the in-memory log ([report](reports/demo-memory.md)) and, identically, against a real AutoMQ 1.7.4 + MinIO cluster in CI ([report](reports/replayproof-automq-2026-09-19.md)). 68 unit tests. |
 | How mature is it? | v0.1 prototype. The runs come from the author's [governed-agent-orchestrator](https://github.com/gandhiashutosh14/governed-agent-orchestrator) on a public sample database, with a deterministic planner and no language model. |
 | What it is not | Not a Kafka fork or an AutoMQ plug-in; not a benchmark of AutoMQ; not a full policy engine. It replays argument constraints, effect classes and approval requirements, which is what the orchestrator's guard decides. |
 | What it would take to use it for real | A live recorder in your agent runtime (one line with the orchestrator), a schema registry for the envelope, retention and access rules on the topic, and the Iceberg projection planned for v0.2 so the ledger is queryable with SQL. |
@@ -119,7 +119,7 @@ git clone https://github.com/gandhiashutosh14/tracewake.git
 cd tracewake
 python -m venv .venv && . .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-pytest -q                                            # 62 passed
+pytest -q                                            # 68 passed
 tracewake demo --out reports/demo-memory.md          # in-memory log: 8 of 8 checks
 tracewake echo --from policies/v1.json --to policies/v2.json
 ```
@@ -192,7 +192,7 @@ makes the flip table credible.
 tracewake/            envelope, bus, recorder, policy, ledger, echo, proof, cli
 policies/             v1.json (the orchestrator's catalog) and v2.json (the changed policy)
 fixtures/orchestrator four recorded runs and PROVENANCE.json
-tests/                62 tests; the in-memory log is enough for all of them
+tests/                68 tests; the in-memory log is enough for all of them
 docker/compose.yaml   AutoMQ 1.7.4 + MinIO, adapted from AutoMQ's own compose file
 scripts/              make_fixtures.py, wait_for_broker.py
 reports/              committed proof reports with the command and revision that produced them
@@ -207,7 +207,7 @@ A SWOT analysis lists **S**trengths and **W**eaknesses (inside the project) and
 
 | | Helpful | Harmful |
 |---|---|---|
-| **Internal** | **Strengths**<br>• The ledger is rebuilt from the log alone, and the proof destroys and rebuilds it to show that.<br>• Replay reproduces the record before it predicts the change; 0 mismatches is a hard check, not a claim.<br>• Envelopes carry the policy id, so "which rules were in force" is in the data, not in someone's memory.<br>• Runs on any Kafka-protocol log; the in-memory log makes every test broker-free.<br>• 62 tests, and a cross-check against the original guard's semantics. | **Weaknesses**<br>• Four recorded runs from one demo domain; no language model, no real traffic.<br>• Refused calls lack resolved arguments in the source trace, so some replays end as `needs-evidence`.<br>• Only constraint, effect and approval policy is replayed; budgets and planner behaviour are not.<br>• No schema registry, retention policy or access control yet; the topic is trusted as-is.<br>• Timings are from a laptop and a CI runner, not a load test. |
+| **Internal** | **Strengths**<br>• The ledger is rebuilt from the log alone, and the proof destroys and rebuilds it to show that.<br>• Replay reproduces the record before it predicts the change; 0 mismatches is a hard check, not a claim.<br>• Envelopes carry the policy id, so "which rules were in force" is in the data, not in someone's memory.<br>• Runs on any Kafka-protocol log; the in-memory log makes every test broker-free.<br>• 68 tests, and a cross-check against the original guard's semantics. | **Weaknesses**<br>• Four recorded runs from one demo domain; no language model, no real traffic.<br>• Refused calls lack resolved arguments in the source trace, so some replays end as `needs-evidence`.<br>• Only constraint, effect and approval policy is replayed; budgets and planner behaviour are not.<br>• No schema registry, retention policy or access control yet; the topic is trusted as-is.<br>• Timings are from a laptop and a CI runner, not a load test. |
 | **External** | **Opportunities**<br>• Regulation increasingly asks for record-keeping of automated decisions (the EU AI Act's Article 12, GDPR Article 22); a durable decision log is the raw material.<br>• AutoMQ's Table Topic can project the same topic into Apache Iceberg, which turns the ledger into SQL without another pipeline (v0.2).<br>• Any agent runtime with a subscribe hook can produce TraceEnvelopes; the envelope is small and versioned on purpose.<br>• Kafka is already in most enterprises; this adds no new infrastructure. | **Threats**<br>• Agent frameworks and observability vendors are adding tracing and replay features; the differentiator has to stay the faithful, policy-aware replay.<br>• Kafka-protocol drift: kafka-python and AutoMQ track Kafka 3.9; a protocol change needs re-testing.<br>• A decision log holds sensitive arguments (addresses, amounts); without redaction and access control it is a liability as well as evidence.<br>• Policy formats vary; the replay works for catalogs shaped like the orchestrator's. |
 
 ## Where this applies

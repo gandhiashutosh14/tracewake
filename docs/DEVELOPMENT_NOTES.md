@@ -66,7 +66,7 @@ answer: publish the orchestrator's journal to the log, rebuild it, replay it, an
 
 | Check | Result |
 |---|---|
-| `pytest -q` | 62 passed |
+| `pytest -q` | 68 passed |
 | `tracewake demo` (in-memory log) | 8 of 8 checks; 4 runs, 40 events, 7 decisions, 2 flipped, 0 mismatches ([`reports/demo-memory.md`](../reports/demo-memory.md)) |
 | `tracewake proof --bootstrap localhost:9092` against AutoMQ 1.7.4 + MinIO (CI) | 8 of 8 checks, same counts; publish 1.53 s, ledger rebuild 0.15 s ([`reports/replayproof-automq-2026-09-19.md`](../reports/replayproof-automq-2026-09-19.md)) |
 
