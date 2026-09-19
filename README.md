@@ -154,7 +154,7 @@ Two committed reports show these values: [`reports/demo-memory.md`](reports/demo
 from the in-memory log, and [`reports/replayproof-automq-2026-09-19.md`](reports/replayproof-automq-2026-09-19.md)
 from the `automq` job of [the workflow](.github/workflows/ci.yml), which starts AutoMQ 1.7.4 with
 MinIO on the CI runner on every push and names the run it came from. On that runner, publishing the
-40 events with `acks=all` took 1.53 s and rebuilding the ledger from offset 0 took 0.15 s. Timings
+40 events with `acks=all` took 0.99 s and rebuilding the ledger from offset 0 took 0.14 s. Timings
 are what that machine measured on 40 events; they are not a benchmark of AutoMQ.
 
 ## Design

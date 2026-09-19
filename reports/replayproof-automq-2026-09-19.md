@@ -1,8 +1,8 @@
 # ReplayProof against AutoMQ 1.7.4
 
-> Produced by the `ReplayProof against AutoMQ` job of GitHub Actions run [35419717177](https://github.com/gandhiashutosh14/tracewake/actions/runs/35419717177) on an `ubuntu-latest` runner: AutoMQ `automqinc/automq:1.7.4` (single node, KRaft) with MinIO as object storage from `docker/compose.yaml`, reached through kafka-python, which reported protocol version 3.9 in the handshake. The report file is the job's artifact, unedited apart from this note.
+> Produced by the `ReplayProof against AutoMQ` job of GitHub Actions run [35420305967](https://github.com/gandhiashutosh14/tracewake/actions/runs/35420305967) on an `ubuntu-latest` runner: AutoMQ `automqinc/automq:1.7.4` (single node, KRaft) with MinIO as object storage from `docker/compose.yaml`, reached through kafka-python, which reported protocol version 3.9 in the handshake. The broker log of the run contains no rejected batch. The report file is the job's artifact, unedited apart from this note.
 
-**PASSED**: 8 of 8 checks. Generated 2026-09-19T03:52:17+00:00 at revision `17b46d7` with `tracewake proof --bootstrap localhost:9092 --topic tracewake.proof.1789789935`.
+**PASSED**: 8 of 8 checks. Generated 2026-09-19T04:05:29+00:00 at revision `317c279` with `tracewake proof --bootstrap localhost:9092 --topic tracewake.proof.1789790726`.
 
 Log: KafkaBus on localhost:9092 (kafka-python). Python 3.12.14 on Linux-6.17.0-1022-azure-x86_64-with-glibc2.39; tracewake 0.1.0a1, kafka-python 3.0.11.
 
@@ -12,8 +12,8 @@ Log: KafkaBus on localhost:9092 (kafka-python). Python 3.12.14 on Linux-6.17.0-1
 |---|---|
 | Runs published | 4 |
 | Events published | 40 |
-| Publish time | 1.533 s (26 events/s) |
-| Ledger rebuild time (first read from offset 0) | 0.148 s |
+| Publish time | 0.991 s (40 events/s) |
+| Ledger rebuild time (first read from offset 0) | 0.136 s |
 | Duplicate deliveries injected | 3 |
 | Decisions replayed | 7 |
 
@@ -32,7 +32,7 @@ Log: KafkaBus on localhost:9092 (kafka-python). Python 3.12.14 on Linux-6.17.0-1
 
 # PolicyEcho result
 
-Old policy `cc9add63cb2c` (v1.json) -> new policy `2dc3e7fa29a9` (v2.json). Generated 2026-09-19T03:52:17+00:00.
+Old policy `cc9add63cb2c` (v1.json) -> new policy `2dc3e7fa29a9` (v2.json). Generated 2026-09-19T04:05:29+00:00.
 
 ## What changed in the policy
 
