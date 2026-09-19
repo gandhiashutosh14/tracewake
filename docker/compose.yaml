@@ -3,7 +3,9 @@
 # Adapted from AutoMQ's docker/docker-compose.yaml at tag 1.7.4 (Apache License 2.0,
 # https://github.com/AutoMQ/automq/blob/1.7.4/docker/docker-compose.yaml). Changes: the broker
 # port is published on the host and advertised as localhost:9092 so clients on the host can
-# connect; the fixed subnet was dropped. Everything else, including the heap settings, is theirs.
+# connect; the fixed subnet was dropped; and the MinIO images come from quay.io, because the
+# minio/minio and minio/mc tags on Docker Hub were no longer available on 2026-09-19.
+# Everything else, including the heap settings, is theirs.
 #
 #   docker compose -f docker/compose.yaml up -d
 #   python scripts/wait_for_broker.py localhost:9092
@@ -13,7 +15,7 @@
 services:
   minio:
     container_name: "minio"
-    image: minio/minio:RELEASE.2025-05-24T17-08-30Z
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z.hotfix.7aa24e772
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
@@ -32,7 +34,7 @@ services:
 
   mc:
     container_name: "mc"
-    image: minio/mc:RELEASE.2025-05-21T01-59-54Z
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
     depends_on:
       minio:
         condition: service_healthy
