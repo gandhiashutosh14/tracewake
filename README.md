@@ -55,7 +55,7 @@ made by an autonomous agent.
 | What problem does this address? | Agent decisions are kept as disposable logs. They should be durable, ordered, reconstructible evidence that can be re-examined when policies change. |
 | Who has this problem? | Anyone deploying agents that act on real systems: platform teams, risk and compliance functions, and the engineers who answer "why did the agent do that?" |
 | What does this repository do? | Publishes a governed agent's decision trace to a Kafka-compatible log as versioned envelopes, rebuilds the ledger from the log alone, and replays recorded tool decisions under a changed policy. A proof pack verifies all of it. |
-| What has been shown so far? | On four recorded runs (40 events): the ledger rebuilt from the log equals the source, survives being destroyed and rebuilt, and ignores duplicate delivery; 7 decisions were replayed under a changed policy with 0 mismatches against the record, 2 flipped and 0 needing evidence; 8 of 8 checks pass ([`reports/demo-memory.md`](reports/demo-memory.md)). The same proof runs in CI against a real AutoMQ 1.7.4 + MinIO cluster. 59 unit tests. |
+| What has been shown so far? | On four recorded runs (40 events): the ledger rebuilt from the log equals the source, survives being destroyed and rebuilt, and ignores duplicate delivery; 7 decisions were replayed under a changed policy with 0 mismatches against the record, 2 flipped and 0 needing evidence; 8 of 8 checks pass on the in-memory log ([report](reports/demo-memory.md)) and, identically, against a real AutoMQ 1.7.4 + MinIO cluster in CI ([report](reports/replayproof-automq-2026-09-19.md)). 59 unit tests. |
 | How mature is it? | v0.1 prototype. The runs come from the author's [governed-agent-orchestrator](https://github.com/gandhiashutosh14/governed-agent-orchestrator) on a public sample database, with a deterministic planner and no language model. |
 | What it is not | Not a Kafka fork or an AutoMQ plug-in; not a benchmark of AutoMQ; not a full policy engine. It replays argument constraints, effect classes and approval requirements, which is what the orchestrator's guard decides. |
 | What it would take to use it for real | A live recorder in your agent runtime (one line with the orchestrator), a schema registry for the envelope, retention and access rules on the topic, and the Iceberg projection planned for v0.2 so the ledger is queryable with SQL. |
@@ -139,7 +139,7 @@ the orchestrator.
 
 ## What is measured, and how
 
-| Measure | How | Result on the in-memory log ([report](reports/demo-memory.md)) |
+| Measure | How | Result (identical on the in-memory log and on AutoMQ) |
 |---|---|---|
 | Every published event reaches the ledger | count and validity of consumed messages | 40 published, 40 inserted, 0 invalid |
 | No gaps in any run | sequence numbers 1..max per run | 4 runs, 0 gaps |
@@ -150,10 +150,12 @@ the orchestrator.
 | Replay from ledger equals replay from source | row-by-row comparison | 7 rows equal |
 | The policy change is visible | flips counted | 2 flipped, 0 need evidence |
 
-The proof against AutoMQ runs on every push in the `automq` job of
-[the workflow](.github/workflows/ci.yml); its report is uploaded as a build artifact and the
-committed copy in [`reports/`](reports/) names the run it came from. Timings in the reports are
-what the machine that ran them measured; they are not a benchmark of AutoMQ.
+Two committed reports show these values: [`reports/demo-memory.md`](reports/demo-memory.md)
+from the in-memory log, and [`reports/replayproof-automq-2026-09-19.md`](reports/replayproof-automq-2026-09-19.md)
+from the `automq` job of [the workflow](.github/workflows/ci.yml), which starts AutoMQ 1.7.4 with
+MinIO on the CI runner on every push and names the run it came from. On that runner, publishing the
+40 events with `acks=all` took 1.53 s and rebuilding the ledger from offset 0 took 0.15 s. Timings
+are what that machine measured on 40 events; they are not a benchmark of AutoMQ.
 
 ## Design
 
