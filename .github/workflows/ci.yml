@@ -1,0 +1,64 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: unit tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[dev]"
+      # The orchestrator's guard module is imported (without its heavier dependencies) so the
+      # cross-check test can compare TRACEWAKE's constraint semantics with the original.
+      - run: python -m pip install --no-deps "git+https://github.com/gandhiashutosh14/governed-agent-orchestrator@349d415"
+      - run: python -m pytest -q
+      - name: Demo on the in-memory log
+        run: tracewake demo --out artifacts/demo-memory.md --json artifacts/demo-memory.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo-memory-py${{ matrix.python }}
+          path: artifacts/
+
+  automq:
+    name: ReplayProof against AutoMQ
+    needs: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e .
+      - name: Start AutoMQ 1.7.4 with MinIO
+        run: docker compose -f docker/compose.yaml up -d
+      - name: Wait for the broker
+        run: python scripts/wait_for_broker.py localhost:9092 --timeout 240
+      - name: ReplayProof
+        run: tracewake proof --bootstrap localhost:9092 --out artifacts/replayproof-automq.md --json artifacts/replayproof-automq.json
+      - name: Collect broker logs
+        if: always()
+        run: |
+          mkdir -p artifacts
+          docker compose -f docker/compose.yaml logs --no-color server1 > artifacts/automq-server1.log 2>&1 || true
+          docker compose -f docker/compose.yaml ps > artifacts/compose-ps.txt 2>&1 || true
+          docker compose -f docker/compose.yaml down -v || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replayproof-automq
+          path: artifacts/

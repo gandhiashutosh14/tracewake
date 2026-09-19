@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tracewake"
+version = "0.1.0a1"
+description = "Event-sourced governance for AI agents: publish an agent's decision trace to a Kafka-compatible log, rebuild the ledger from the log alone, and replay recorded decisions under a changed policy."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE", "NOTICE.md"]
+authors = [{ name = "Ashutosh Gandhi", email = "gandhiashutosh14@gmail.com" }]
+keywords = ["kafka", "automq", "ai-agents", "audit-trail", "event-sourcing", "governance", "replay"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: System :: Distributed Computing",
+]
+dependencies = [
+  "kafka-python>=2.2.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/gandhiashutosh14/tracewake"
+Issues = "https://github.com/gandhiashutosh14/tracewake/issues"
+
+[project.scripts]
+tracewake = "tracewake.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tracewake*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

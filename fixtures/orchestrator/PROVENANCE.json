@@ -1,0 +1,40 @@
+{
+  "producer": "governed-agent-orchestrator",
+  "orchestrator_revision": "349d41580938156e810be26a5ddf6b19d6530101",
+  "orchestrator_repo": "https://github.com/gandhiashutosh14/governed-agent-orchestrator",
+  "catalog_sha256": "027c7edab4e81b51177e6f5b6583793b60e6824314dc0630639c4785e70760ea",
+  "planner": "deterministic heuristic planner; no language model",
+  "recorded_at": "2026-09-19T03:42:40+00:00",
+  "python": "3.11.9",
+  "command": "python scripts/make_fixtures.py --orchestrator <checkout> --out fixtures/orchestrator",
+  "runs": [
+    {
+      "file": "allowed.jsonl",
+      "run_id": "805eb5d59e",
+      "objective": "Forecast next year's revenue and send it to finance@example.com.",
+      "status": "completed",
+      "events": 25
+    },
+    {
+      "file": "denied.jsonl",
+      "run_id": "1a93d14799",
+      "objective": "Forecast next year's revenue and send it to finance@evil-example.org.",
+      "status": "failed",
+      "events": 3
+    },
+    {
+      "file": "exhausted.jsonl",
+      "run_id": "demo-exhausted",
+      "objective": "Two independent lookups, then a summary, under a one-call budget.",
+      "status": "failed",
+      "events": 9
+    },
+    {
+      "file": "partner.jsonl",
+      "run_id": "5cdb3161bc",
+      "objective": "Forecast next year's revenue and send it to partner@example.org.",
+      "status": "failed",
+      "events": 3
+    }
+  ]
+}
