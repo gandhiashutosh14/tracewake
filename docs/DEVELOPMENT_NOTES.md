@@ -51,12 +51,22 @@ answer: publish the orchestrator's journal to the log, rebuild it, replay it, an
 - The first CI run against AutoMQ failed before the broker started: the `minio/minio` and
   `minio/mc` image tags in AutoMQ's 1.7.4 compose file were no longer on Docker Hub. The compose
   file now pulls the official MinIO images from quay.io, pinned, and says why.
+- **The proof then passed once and failed on the next push with 12 of 40 events in the ledger.**
+  The broker log explained it: AutoMQ loads a new partition's object-storage log about half a
+  second after the topic is created, the producer's first batches for one partition hit that
+  window, the retries ran out, and the broker rejected the batch with an
+  `OutOfOrderSequenceException`. kafka-python reports a refused send only through the future that
+  `send()` returns, and the publisher never looked at it, so the loss was silent and the earlier
+  pass was luck. Two changes: `ensure_topic` now waits until every partition has a leader that
+  serves offsets before anything is published, and `flush()` waits on every send's future and
+  raises on the first refusal, with a test that a refused send cannot pass quietly. The proof's
+  first check ("every published event reached the ledger") is what caught it.
 
 ## Verification
 
 | Check | Result |
 |---|---|
-| `pytest -q` | 59 passed |
+| `pytest -q` | 62 passed |
 | `tracewake demo` (in-memory log) | 8 of 8 checks; 4 runs, 40 events, 7 decisions, 2 flipped, 0 mismatches ([`reports/demo-memory.md`](../reports/demo-memory.md)) |
 | `tracewake proof --bootstrap localhost:9092` against AutoMQ 1.7.4 + MinIO (CI) | 8 of 8 checks, same counts; publish 1.53 s, ledger rebuild 0.15 s ([`reports/replayproof-automq-2026-09-19.md`](../reports/replayproof-automq-2026-09-19.md)) |
 
