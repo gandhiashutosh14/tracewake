@@ -33,8 +33,10 @@ class FakeConsumer:
 
 def _bus(descriptions, consumer=None):
     bus = KafkaBus("nowhere:9092", ready_timeout_s=3)
-    bus._admin = lambda: FakeAdmin(descriptions)
-    bus._consumer = lambda: consumer or FakeConsumer()
+    admin = FakeAdmin(descriptions)          # one stateful fake, returned on every _admin() call
+    consumer = consumer or FakeConsumer()
+    bus._admin = lambda: admin
+    bus._consumer = lambda: consumer
     return bus
 
 
