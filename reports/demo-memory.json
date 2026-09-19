@@ -1,0 +1,322 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "every published event reached the ledger",
+      "passed": true,
+      "detail": "published 40, consumed 40, inserted 40, invalid 0",
+      "numbers": {
+        "consumed": 40,
+        "inserted": 40,
+        "duplicates": 0,
+        "invalid": 0
+      }
+    },
+    {
+      "name": "no run has a gap in its sequence numbers",
+      "passed": true,
+      "detail": "4 runs, gaps: 0",
+      "numbers": {}
+    },
+    {
+      "name": "ledger content equals the published events, run by run",
+      "passed": true,
+      "detail": "4 of 4 run digests match",
+      "numbers": {}
+    },
+    {
+      "name": "ledger is identical after being destroyed and rebuilt from offset 0",
+      "passed": true,
+      "detail": "rebuilt 40 events; digests equal: True",
+      "numbers": {}
+    },
+    {
+      "name": "a run delivered twice changes nothing",
+      "passed": true,
+      "detail": "re-published 3 events; inserted 0, duplicates seen 43",
+      "numbers": {}
+    },
+    {
+      "name": "replay reproduces every recorded decision under the old policy",
+      "passed": true,
+      "detail": "7 decisions recomputed, 0 mismatches",
+      "numbers": {}
+    },
+    {
+      "name": "replay from the ledger equals replay from the source events",
+      "passed": true,
+      "detail": "7 rows compared",
+      "numbers": {}
+    },
+    {
+      "name": "the policy change is visible in the replay",
+      "passed": true,
+      "detail": "2 flipped, 0 need evidence",
+      "numbers": {}
+    }
+  ],
+  "numbers": {
+    "runs": 4,
+    "events": 40,
+    "publish_s": 0.0016219000099226832,
+    "publish_events_per_s": 24662.432798127193,
+    "ingest_s": 0.00048320001224055886,
+    "duplicates_injected": 3,
+    "decisions": 7,
+    "ledger_events": 40
+  },
+  "environment": {
+    "generated_at": "2026-09-19T03:48:46+00:00",
+    "revision": "325d4c9",
+    "bus": "MemoryBus (in-process, 3 partitions per topic)",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "tracewake": "0.1.0a1",
+    "kafka_python": "3.0.11",
+    "topic": "tracewake.demo"
+  },
+  "command": "tracewake demo",
+  "echo": {
+    "old_policy": {
+      "source": "v1.json",
+      "policy_id": "cc9add63cb2c"
+    },
+    "new_policy": {
+      "source": "v2.json",
+      "policy_id": "2dc3e7fa29a9"
+    },
+    "diff": [
+      "send_report.recipient: {\"allowed_domains\": [\"example.com\"]} -> {\"allowed_domains\": [\"example.org\"]}",
+      "top_genres_by_tracks_sold.top_n: {\"max\": 50, \"min\": 1} -> {\"max\": 2, \"min\": 1}"
+    ],
+    "counts": {
+      "unchanged": 5,
+      "flipped": 2,
+      "needs-evidence": 0
+    },
+    "transitions": {
+      "DENIED -> DENIED": 1,
+      "DENIED -> ALLOWED": 1,
+      "ALLOWED -> ALLOWED": 4,
+      "ALLOWED -> DENIED": 1
+    },
+    "faithfulness": {
+      "checked": 7,
+      "mismatches": 0
+    },
+    "skipped": {
+      "budget_denials": 2
+    },
+    "generated_at": "2026-09-19T03:48:46+00:00",
+    "rows": [
+      {
+        "decision": {
+          "run_id": "1a93d14799",
+          "seq": 2,
+          "step": "s4",
+          "capability": "send_report",
+          "level": "plan",
+          "recorded": "DENIED",
+          "inputs": {
+            "recipient": "finance@evil-example.org",
+            "text": "$s3.text"
+          },
+          "evidence": "literal",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": [
+            "Input 'recipient' is 'finance@evil-example.org', which is not an address in an allowed domain (example.com)."
+          ]
+        },
+        "recomputed_old": "DENIED",
+        "old_violations": [
+          "Input 'recipient' is 'finance@evil-example.org', which is not an address in an allowed domain (example.com)."
+        ],
+        "new": "DENIED",
+        "new_violations": [
+          "Input 'recipient' is 'finance@evil-example.org', which is not an address in an allowed domain (example.org)."
+        ],
+        "classification": "unchanged",
+        "faithful": true,
+        "notes": [],
+        "transition": "DENIED -> DENIED"
+      },
+      {
+        "decision": {
+          "run_id": "5cdb3161bc",
+          "seq": 2,
+          "step": "s4",
+          "capability": "send_report",
+          "level": "plan",
+          "recorded": "DENIED",
+          "inputs": {
+            "recipient": "partner@example.org",
+            "text": "$s3.text"
+          },
+          "evidence": "literal",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": [
+            "Input 'recipient' is 'partner@example.org', which is not an address in an allowed domain (example.com)."
+          ]
+        },
+        "recomputed_old": "DENIED",
+        "old_violations": [
+          "Input 'recipient' is 'partner@example.org', which is not an address in an allowed domain (example.com)."
+        ],
+        "new": "ALLOWED",
+        "new_violations": [],
+        "classification": "flipped",
+        "faithful": true,
+        "notes": [],
+        "transition": "DENIED -> ALLOWED"
+      },
+      {
+        "decision": {
+          "run_id": "805eb5d59e",
+          "seq": 5,
+          "step": "s1",
+          "capability": "revenue_by_year",
+          "level": "call",
+          "recorded": "ALLOWED",
+          "inputs": {},
+          "evidence": "resolved",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": []
+        },
+        "recomputed_old": "ALLOWED",
+        "old_violations": [],
+        "new": "ALLOWED",
+        "new_violations": [],
+        "classification": "unchanged",
+        "faithful": true,
+        "notes": [],
+        "transition": "ALLOWED -> ALLOWED"
+      },
+      {
+        "decision": {
+          "run_id": "805eb5d59e",
+          "seq": 9,
+          "step": "s2",
+          "capability": "forecast_next_year",
+          "level": "call",
+          "recorded": "ALLOWED",
+          "inputs": {
+            "series": [
+              {
+                "revenue": 449.46,
+                "year": 2021
+              },
+              {
+                "revenue": 481.45,
+                "year": 2022
+              },
+              {
+                "revenue": 469.58,
+                "year": 2023
+              },
+              {
+                "revenue": 477.53,
+                "year": 2024
+              },
+              {
+                "revenue": 450.58,
+                "year": 2025
+              }
+            ]
+          },
+          "evidence": "resolved",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": []
+        },
+        "recomputed_old": "ALLOWED",
+        "old_violations": [],
+        "new": "ALLOWED",
+        "new_violations": [],
+        "classification": "unchanged",
+        "faithful": true,
+        "notes": [],
+        "transition": "ALLOWED -> ALLOWED"
+      },
+      {
+        "decision": {
+          "run_id": "805eb5d59e",
+          "seq": 13,
+          "step": "s3",
+          "capability": "draft_summary",
+          "level": "call",
+          "recorded": "ALLOWED",
+          "inputs": {
+            "facts": "Linear-trend forecast for 2026: 465.22 (slope -0.17/year over 5 years)",
+            "objective": "Forecast next year's revenue and send it to finance@example.com."
+          },
+          "evidence": "resolved",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": []
+        },
+        "recomputed_old": "ALLOWED",
+        "old_violations": [],
+        "new": "ALLOWED",
+        "new_violations": [],
+        "classification": "unchanged",
+        "faithful": true,
+        "notes": [],
+        "transition": "ALLOWED -> ALLOWED"
+      },
+      {
+        "decision": {
+          "run_id": "805eb5d59e",
+          "seq": 22,
+          "step": "s4",
+          "capability": "send_report",
+          "level": "call",
+          "recorded": "ALLOWED",
+          "inputs": {
+            "recipient": "finance@example.com",
+            "text": "Forecast next year's revenue and send it to finance@example.com. Findings: Linear-trend forecast for 2026: 465.22 (slope -0.17/year over 5 years)"
+          },
+          "evidence": "resolved",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": []
+        },
+        "recomputed_old": "ALLOWED",
+        "old_violations": [],
+        "new": "DENIED",
+        "new_violations": [
+          "Input 'recipient' is 'finance@example.com', which is not an address in an allowed domain (example.org)."
+        ],
+        "classification": "flipped",
+        "faithful": true,
+        "notes": [],
+        "transition": "ALLOWED -> DENIED"
+      },
+      {
+        "decision": {
+          "run_id": "demo-exhausted",
+          "seq": 2,
+          "step": "s1",
+          "capability": "revenue_by_year",
+          "level": "call",
+          "recorded": "ALLOWED",
+          "inputs": {},
+          "evidence": "resolved",
+          "missing": [],
+          "via_fallback": false,
+          "recorded_violations": []
+        },
+        "recomputed_old": "ALLOWED",
+        "old_violations": [],
+        "new": "ALLOWED",
+        "new_violations": [],
+        "classification": "unchanged",
+        "faithful": true,
+        "notes": [],
+        "transition": "ALLOWED -> ALLOWED"
+      }
+    ]
+  }
+}
